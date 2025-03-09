@@ -8,31 +8,28 @@ constexpr int M = 2e5 + 7;
 int n, m, s;
 int dis[N], vis[N];
 
-struct edge {
-	int to, val;
-};
-std::vector<edge> G[M << 1];
+std::vector<std::pair<int, int>> G[M << 1];
 
-struct node {
+struct element {
 	int id, w;
 
-	friend bool operator < (const node &a, const node &b) {
-		return a.w > b.w;
+	bool operator < (const element &rhs) const {
+		return w > rhs.w;
 	}
 };
 
-void dij() {
+void Dij() {
+	std::priority_queue<element> q;
 	memset(dis, 0x7f, sizeof(dis));
-	std::priority_queue<node> q;
 	dis[s] = 0;
 	q.push({s, 0});
-	while (!q.empty()) {
-		int u = q.top().id;
+	while (q.size()) {
+		auto [u, ow] = q.top();
 		q.pop();
 		if (vis[u]) continue;
 		vis[u] = 1;
-		for (size_t i = 0; i < G[u].size(); i++) {
-			int v = G[u][i].to, w = G[u][i].val;
+		for (auto i : G[u]) {
+			auto [v, w] = i;
 			if (dis[v] > (i64) dis[u] + w) {
 				dis[v] = dis[u] + w;
 				q.push({v, dis[v]});
@@ -46,12 +43,11 @@ int main() {
 	std::cin.tie(nullptr);
 
 	std::cin >> n >> m >> s;
-	for (int i = 1; i <= m; i++) {
-		int u, v, w;
+	for (int i = 1, u, v, w; i <= m; i++) {
 		std::cin >> u >> v >> w;
 		G[u].push_back({v, w});
 	}
-	dij();
+	Dij();
 	for (int i = 1; i <= n; i++)
 		std::cout << dis[i] << " ";
 	std::cout << "\n";
