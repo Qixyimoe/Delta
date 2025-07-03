@@ -4,12 +4,17 @@ using i64 = long long;
 
 constexpr int N = 1e5 + 7;
 constexpr int M = 2e5 + 7;
+constexpr int inf = 2147483647;
 
 int n, m, s;
 int dis[N];
 bool vis[N];
 
-std::vector<std::pair<int, int>> G[N];
+struct edge {
+	int to, val;
+};
+
+std::vector<edge> G[N];
 
 struct node {
 	int id, w;
@@ -20,8 +25,11 @@ struct node {
 };
 
 void dij() {
-	memset(dis, 0x7f, sizeof(dis));
+	for (int i = 1; i <= n; i++) {
+		dis[i] = inf;
+	}
 	std::priority_queue<node> q;
+
 	dis[s] = 0;
 	q.push({s, 0});
 	while (q.size()) {
@@ -49,9 +57,8 @@ int main() {
 		G[u].push_back({v, w});
 	}
 	dij();
-	for (int i = 1; i <= n; i++) {
+	for (int i = 1; i <= n; i++)
 		std::cout << dis[i] << " ";
-	}
 	std::cout << "\n";
 	return 0;
 }

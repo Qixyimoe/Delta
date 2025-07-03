@@ -38,9 +38,10 @@ struct DSU {
 void kruskal() {
 	std::sort(e + 1, e + m + 1, cmp);
 	for (int i = 1; i <= m; i++) {
-		int u = uni.find(e[i].u), v = uni.find(e[i].v);
+		auto [u, v, w] = e[i];
+		u = uni.find(u), v = uni.find(v);
 		if (u == v) continue;
-		ans += e[i].w, ecnt++;
+		ans += w, ecnt++;
 		uni.merge(u, v);
 	}
 }
@@ -55,7 +56,9 @@ int main() {
 		std::cin >> e[i].u >> e[i].v >> e[i].w;
 	}
 	kruskal();
-	if (ecnt == n - 1) std::cout << ans << "\n";
-	else std::cout << "orz\n";
+	if (ecnt == n - 1)
+		std::cout << ans << "\n";
+	else
+		std::cout << "orz\n";
 	return 0;
 }
