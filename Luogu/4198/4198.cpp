@@ -1,51 +1,57 @@
 #include <bits/stdc++.h>
 
 using i64 = long long;
-using f64 = double;
 
 constexpr int N = 1e5 + 7;
 
 int n, m;
-
-struct node {
-    f64 mx;
-    int ans;
-};
+double a[N];
 
 struct SegTree {
-    node tr[N << 2];
+    struct node {
+        int len;
+        double mx;
+    } tr[N << 2];
 
-    int query(int o, int l, int r, f64 mx) {
-        if (tr[o].mx <= mx) return 0;
-        if (l == r) return tr[o].mx > mx;
-        else if (tr[o << 1].mx <= mx) return query(o << 1 | 1, ((l + r) >> 1) + 1, r, mx);
-        return query(o << 1, l, (l + r) >> 1, mx) + tr[o].ans - tr[o << 1].ans;
+    #define ls(o) (o << 1)
+    #define rs(o) (o << 1 | 1)
+
+    void pushup(int o) {
+        tr[o].mx = std::max(tr[ls(o)].mx, tr[rs(o)].mx);
     }
 
-    void update(int o, int l, int r, int p, f64 v) {
-        if (l == p && r == p) {
-            tr[o].ans = 1, tr[o].mx = v;
+    int maintain(int o, int l, int r, double k) {
+        if (tr[o].mx <= k) return 0;
+        if (a[l] > k) return tr[o].len;
+        if (l == r) return (a[l] > k);
+        int mid = (l + r) >> 1;
+        if (tr[ls(o)].mx <= k) return maintain(rs(o), mid + 1, r, k);
+        return maintain(ls(o), l, mid, k) + tr[o].len - tr[ls(o)].len;
+    }
+
+    void modify(int o, int l, int r, int t, int c) {
+        if (l == r && l == t) {
+            tr[o] = {1, 1.0 * c / t};
             return;
         }
         int mid = (l + r) >> 1;
-        if (p <= mid) update(o << 1, l, mid, p, v);
-        else update(o << 1 | 1, mid + 1, r, p, v);
-        tr[o].mx = std::max(tr[o << 1].mx, tr[o << 1 | 1].mx);
-        tr[o].ans = tr[o << 1].ans + query(o << 1 | 1, mid + 1, r, tr[o << 1].mx);
+        if (t <= mid) modify(ls(o), l, mid, t, c);
+        if (t > mid) modify(rs(o), mid + 1, r, t, c);
+        pushup(o);
+        tr[o].len = tr[ls(o)].len + maintain(rs(o), mid + 1, r, tr[ls(o)].mx);
     }
 } seg;
-
 
 int main() {
     std::ios::sync_with_stdio(false);
     std::cin.tie(nullptr);
 
     std::cin >> n >> m;
-    for (int i = 1; i <= m; i++) {
-        int l, r;
-        std::cin >> l >> r;
-        seg.update(1, 1, n, l, (f64) r / l);
-        std::cout << seg.tr[1].ans << "\n";
+    for (int i = 1, x, y; i <= m; i++) {
+        std::cin >> x >> y;
+        a[x] = 1.0 * y / x;
+        seg.modify(1, 1, n, x, y);
+        std::cout << seg.tr[1].len << "\n";
     }
     return 0;
 }
